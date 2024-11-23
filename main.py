@@ -23,8 +23,14 @@ async def root():
 async def prompt_gpt(prompt: str, task_uuid: str):
     try:
         logger.info(f"Started generating response for prompt: {task_uuid}")
+        
         task_status[task_uuid]["result"] = query_assistant(assistant, prompt)
-        task_status[task_uuid]["status"] = PromptStatus.FINISHED
+
+        if task_status[task_uuid]["result"] == "error":
+            task_status[task_uuid]["status"] = PromptStatus.FAILED
+        else :
+            task_status[task_uuid]["status"] = PromptStatus.FINISHED
+
         logger.info(f"Finished generating response for prompt: {task_uuid}")
 
     except Exception as e:
