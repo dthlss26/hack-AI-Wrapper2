@@ -9,5 +9,5 @@ class PromptResponse(BaseModel):
     uuid: str
 
 class PromptStatus(BaseModel):
-    status: Literal["failed", "running", "finished"]
-    response: str
+    status: Literal["failed", "running", "finished", "notFound"]
+    response: str = None
