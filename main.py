@@ -23,7 +23,7 @@ async def root():
 async def prompt_gpt(prompt: str, task_uuid: str):
     try:
         logger.info(f"Started generating response for prompt: {task_uuid}")
-        
+
         task_status[task_uuid]["result"] = query_assistant(assistant, prompt)
 
         if task_status[task_uuid]["result"] == "error":
@@ -37,7 +37,7 @@ async def prompt_gpt(prompt: str, task_uuid: str):
         logger.error(f"An error has occured while generating response for prompt: {task_uuid}")
         task_status[task_uuid]["status"] = PromptStatus.FAILED
 
-@app.post("/prompt/generate")
+@app.post("/prompt")
 async def generate_prompt(prompt: Prompt, background_tasks: BackgroundTasks):
     logger.info(f"Received prompt: {prompt.prompt}")
     new_uuid = str(uuid.uuid4())
@@ -46,7 +46,7 @@ async def generate_prompt(prompt: Prompt, background_tasks: BackgroundTasks):
     background_tasks.add_task(prompt_gpt, prompt.prompt, new_uuid)
     return PromptResponse(uuid=new_uuid)
 
-@app.get("/prompt/status/{uuid}")
+@app.get("/status/{uuid}")
 async def prompt_status(req_uuid: str):
     logger.info(f"Received prompt status request uuid: {req_uuid}")
 
