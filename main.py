@@ -22,10 +22,13 @@ async def root():
 
 async def prompt_gpt(prompt: str, task_uuid: str):
     try:
-
+        logger.info(f"Started generating response for prompt: {task_uuid}")
         task_status[task_uuid]["result"] = query_assistant(assistant, prompt)
+        task_status[task_uuid]["status"] = PromptStatus.FINISHED
+        logger.info(f"Finished generating response for prompt: {task_uuid}")
 
     except Exception as e:
+        logger.error(f"An error has occured while generating response for prompt: {task_uuid}")
         task_status[task_uuid]["status"] = PromptStatus.FAILED
 
 @app.post("/prompt/generate")
@@ -49,12 +52,16 @@ async def prompt_status(req_uuid: str):
     return PromptStatus(status=status)
 
 if __name__ == "__main__":
-    convert_csv_to_text(csv_path, text_file_path)
+    logger.info("Starting application..")
+    # convert_csv_to_text(csv_path, text_file_path)
     convert_csv_to_json(csv_path, json_file_path)
 
     # Upload the file to vector store (choose either text or JSON)
+    logger.info("Uploading to vector store...")
     vector_store_id = upload_file_to_vector_store(json_file_path, "text/plain")
 
     # Set up the assistant
+    logger.info("Setting up assistant...")
     assistant = setup_assistant(vector_store_id)
+    logger.info("Application ready")
 
