@@ -1,11 +1,13 @@
+
 from openai import OpenAI
 import csv
 import json
 import os
+import time
 
 # OpenAI API key
-OPENAI_API_KEY = ""
-client = OpenAI(api_key=OPENAI_API_KEY)
+
+client = OpenAI()
 
 # Paths
 csv_path = "C:/Users/František/Downloads/time_series_covid19_confirmed_global.csv"
@@ -74,12 +76,29 @@ def setup_assistant(vector_store_id):
 
 # Query the assistant
 def query_assistant(assistant_id, query):
-    thread = client.beta.threads.create(
-        messages=[{"role": "user", "content": query}],
-        assistant_id = assistant_id  # Updated argument
+    # Create a thread for the assistant
+    thread = client.beta.threads.create()
+
+    message = client.beta.threads.messages.create(
+        thread_id = thread.id,
+        role = "user",
+        content = query
     )
-    response = client.beta.threads.get(thread_id=thread.id)
-    print(f"Response: {response['messages'][-1]['content']}")
+
+    run = client.beta.threads.runs.create(
+        thread_id = thread.id,
+        assistant_id = assistant_id,
+    )
+
+    while run.status == "queued" or run.status == "in_progress":
+        run = client.beta.threads.runs.retrieve(
+            thread_id=thread.id,
+            run_id=run.id,
+        )
+        time.sleep(0.5)
+
+    respmsg = client.beta.threads.messages.list(thread.id)
+    return respmsg.data[0].content[0].text.value
 
 
 # Main execution
@@ -96,4 +115,5 @@ if __name__ == "__main__":
 
     # Query the assistant
     query = "What are the properties for Slovakia on 25/10/2022?"
-    query_assistant(assistant.id, query)
+    response = query_assistant(assistant.id, query)
+    print(response)
