@@ -1,23 +1,32 @@
 from fastapi import FastAPI, BackgroundTasks
 from loguru import logger
+from fastapi.middleware.cors import CORSMiddleware
 
 import openAIAssistant
 from models import Prompt, PromptResponse, PromptStatus
 import uuid
 
-from openAIAssistant import convert_csv_to_text, convert_csv_to_json, upload_file_to_vector_store, setup_assistant, \
+from openAIAssistant import csv_to_country_json, upload_file_to_vector_store, setup_assistant, \
     query_assistant
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins="*",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 def init():
     logger.info("Starting application..")
     # convert_csv_to_text(csv_path, text_file_path)
-    convert_csv_to_json(openAIAssistant.csv_path, openAIAssistant.json_file_path)
+    csv_to_country_json(openAIAssistant.csv_paths, openAIAssistant.json_file_paths)
 
     # Upload the file to vector store (choose either text or JSON)
     logger.info("Uploading to vector store...")
-    vector_store_id = upload_file_to_vector_store(openAIAssistant.json_file_path, "text/plain")
+    vector_store_id = upload_file_to_vector_store(["Confirmed/SlovakiaConfirmed.json", "Deaths/SlovakiaDeaths.json", "Recovered/SlovakiaRecovered.json"], "text/plain")
 
     # Set up the assistant
     logger.info("Setting up assistant...")
