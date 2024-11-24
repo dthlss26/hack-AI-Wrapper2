@@ -10,9 +10,9 @@ import time
 client = OpenAI()
 
 # Paths
-csv_path = "C:/Users/František/Downloads/time_series_covid19_confirmed_global.csv"
-text_file_path = "C:/Users/František/Downloads/time_series_covid19_confirmed_global.txt"
-json_file_path = "C:/Users/František/Downloads/time_series_covid19_confirmed_global.json"
+csv_path = "time_series_covid19_confirmed_global.csv"
+text_file_path = "time_series_covid19_confirmed_global.txt"
+json_file_path = "time_series_covid19_confirmed_global.json"
 
 # Check if CSV exists
 if not os.path.exists(csv_path):
